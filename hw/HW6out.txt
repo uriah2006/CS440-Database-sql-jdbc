@@ -1,0 +1,136 @@
+SQL> @HW6in.sql
+SQL> set echo on
+SQL> set serveroutput on format wrapped size 1000000
+SQL> set line 140
+SQL> 
+SQL>  /*
+SQL>  uriah sypolt
+SQL>  cs440
+SQL>  assignment 6
+SQL>  march 4 2013
+SQL>  */
+SQL> create or replace procedure Salary_Report
+  2  as
+  3  		     total_avg	number;
+  4  		     total_sal	number;
+  5  	     BEGIN
+  6  		     dbms_output.put_line (lpad (To_CHAR (SYSDATE,'DAY, MONTH DD, YYYY'),
+  7  			     70+(length(To_CHAR (SYSDATE,'DAY, MONTH DD, YYYY')))/2,
+  8  			     ' '));
+  9  		     dbms_output.put_line (lpad ('Regal Lager',70+(length('Regal Lager')/2),' '));
+ 10  		     dbms_output.new_line;
+ 11  		     dbms_output.put_line (lpad(('More than a Great Brew - a Palindrome'),
+ 12  			     70+37/2,
+ 13  			     (' ')));
+ 14  		     dbms_output.new_line;
+ 15  		     dbms_output.new_line;
+ 16  		     dbms_output.put_line (lpad (('Departmental Salary Report'),
+ 17  			     (70+26/2),
+ 18  			     (' ')));
+ 19  		     dbms_output.new_line;
+ 20  		     for dname_list in (select dname from dept) loop
+ 21  
+ 22  			     dbms_output.put_line (lpad ('DEPARTMENT:' || TO_CHAR (dname_list.dname),
+ 23  				     70+(length('DEPARTMENT:' || TO_CHAR (dname_list.dname)))/2,
+ 24  				     ' '));
+ 25  
+ 26  			     for ename_sal_list in(select ename, sal, dname from emp join dept using (deptno) where dname = dname_list.dname) loop
+ 27  
+ 28  				     dbms_output.put_line (lpad (TO_CHAR (ename_sal_list.ename) || ' : '|| TO_CHAR (ename_sal_list.sal,'$999,999.99'),
+ 29  					     (70+length (TO_CHAR (ename_sal_list.ename) || ' : '|| TO_CHAR (ename_sal_list.sal,'$999,999.99'))/2),
+ 30  					     (' ')));
+ 31  
+ 32  			     end loop;
+ 33  
+ 34  			     select sum(sal) into total_sal from emp join dept using (deptno) where dname = dname_list.dname;
+ 35  			     select avg(sal) into total_avg from emp join dept using (deptno) where dname = dname_list.dname;
+ 36  
+ 37  			     dbms_output.put_line (lpad ('Total '||TO_CHAR(dname_list.dname)||' salary: ' || TO_CHAR(total_sal,'$999,999.99'),
+ 38  				     (70+length ('Total '||TO_CHAR(dname_list.dname)||' salary: ' || TO_CHAR(total_sal,'$999,999.99'))/2),
+ 39  				     (' ')));
+ 40  			     dbms_output.put_line (lpad ('Average '||TO_CHAR(dname_list.dname)||' salary: ' || TO_CHAR(total_avg,'$999,999.99'),
+ 41  				     (70+length ('Average '||TO_CHAR(dname_list.dname)||' salary: ' || TO_CHAR(total_avg,'$999,999.99'))/2),
+ 42  				     (' ')));
+ 43  			     dbms_output.new_line;
+ 44  
+ 45  		     end loop;
+ 46  		     select sum(sal) into total_sal from emp;
+ 47  		     select avg(sal) into total_avg from emp;
+ 48  
+ 49  		     dbms_output.put_line (lpad ('Total Regal Lager salary: ' || TO_CHAR(total_sal,'$999,999.99'),
+ 50  			     70+length('Total Regal Lager salary:' || TO_CHAR(total_sal,'$999,999.99'))/2,
+ 51  			     ' '));
+ 52  
+ 53  		     dbms_output.put_line (lpad ('Average Regal Lager salary:' || TO_CHAR(total_avg,'$999,999.99'),
+ 54  			     70+length ('Average Regal Lager salary:' || TO_CHAR(total_avg,'$999,999.99'))/2,
+ 55  			     ' '));
+ 56  		     dbms_output.new_line;
+ 57  
+ 58  		     dbms_output.put_line (lpad ('End of Report',
+ 59  			     70+length ('End of Report')/2,
+ 60  			     ' '));
+ 61  
+ 62  	     END;
+ 63  /
+
+Procedure created.
+
+SQL> exec Salary_Report;
+                                                        MONDAY   , MARCH     11, 2013                                                       
+                                                                 Regal Lager                                                                
+                                                                                                                                            
+                                                    More than a Great Brew - a Palindrome                                                   
+                                                                                                                                            
+                                                                                                                                            
+                                                         Departmental Salary Report                                                         
+                                                                                                                                            
+                                                            DEPARTMENT:ACCOUNTING                                                           
+                                                            CLARK :    $2,450.00                                                            
+                                                             KING :    $5,000.00                                                            
+                                                            MILLER :    $1,300.00                                                           
+                                                    Total ACCOUNTING salary:    $8,750.00                                                   
+                                                   Average ACCOUNTING salary:    $2,916.67                                                  
+                                                                                                                                            
+                                                             DEPARTMENT:RESEARCH                                                            
+                                                            SMITH :      $800.00                                                            
+                                                            JONES :    $2,975.00                                                            
+                                                            SCOTT :    $3,000.00                                                            
+                                                            ADAMS :    $1,100.00                                                            
+                                                             FORD :    $3,000.00                                                            
+                                                     Total RESEARCH salary:   $10,875.00                                                    
+                                                    Average RESEARCH salary:    $2,175.00                                                   
+                                                                                                                                            
+                                                              DEPARTMENT:SALES                                                              
+                                                            ALLEN :    $1,600.00                                                            
+                                                             WARD :    $1,250.00                                                            
+                                                            MARTIN :    $1,250.00                                                           
+                                                            BLAKE :    $2,850.00                                                            
+                                                            TURNER :    $1,500.00                                                           
+                                                            JAMES :      $950.00                                                            
+                                                      Total SALES salary:    $9,400.00                                                      
+                                                     Average SALES salary:    $1,566.67                                                     
+                                                                                                                                            
+                                                            DEPARTMENT:OPERATIONS                                                           
+                                                          Total OPERATIONS salary:                                                          
+                                                         Average OPERATIONS salary:                                                         
+                                                                                                                                            
+                                                   Total Regal Lager salary:   $29,025.00                                                   
+                                                   Average Regal Lager salary:   $2,073.21                                                  
+                                                                                                                                            
+                                                                End of Report                                                               
+
+PL/SQL procedure successfully completed.
+
+SQL> grant execute on Salary_Report to ramorehead;
+
+Grant succeeded.
+
+SQL> grant select on emp to ramorehead;
+
+Grant succeeded.
+
+SQL> grant select on dept to ramorehead;
+
+Grant succeeded.
+
+SQL> spool off

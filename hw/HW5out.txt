@@ -1,0 +1,240 @@
+sqlplus>@HW5in.sql
+sqlplus>/*
+sqlplus>	uriah  sypolt
+sqlplus>	CS 440
+sqlplus>	Assignment 5
+sqlplus>	February 15, 2013
+sqlplus>*/
+sqlplus>
+sqlplus>set echo on
+sqlplus>
+sqlplus>--1.	a)  List part names of all parts supplied by suppliers s1, s2, or s4.
+sqlplus>
+sqlplus>select pname
+  2  	     from p
+  3  	     where p# in(select p#
+  4  		     from sp
+  5  		     where s# = 's1'
+  6  		     or
+  7  		     s# = 's2'
+  8  		     or
+  9  		     s# = 's4'
+ 10  );
+PNAME
+----------
+hammer
+pliers
+router
+stapler
+wrench
+ladder
+
+6 rows selected.
+
+sqlplus>
+sqlplus>--	b)  List part names of all parts supplied by all three (s1, s2, and s4).
+sqlplus>
+sqlplus>select pname
+  2  	     from p
+  3  	     where p# in ('s1','s2','s4')
+  4  	     group by pname
+  5  	     having count(*)=3
+  6  ;
+
+no rows selected
+
+sqlplus>
+sqlplus>
+sqlplus>--2.	List supplier names of suppliers who do not supply every red part.
+sqlplus>select sname
+  2  	     from s s1
+  3  	     where sname not in (select distinct sname
+  4  		     from p
+  5  		     join sp on sp.p#=p.p#
+  6  		     join s on sp.s#=s.s#
+  7  		     where color = 'red'
+  8  		     )
+  9  	     )
+ 10  ;
+	)
+	*
+ERROR at line 9:
+ORA-00933: SQL command not properly ended
+
+
+sqlplus>
+sqlplus>--3.	List supplier names of suppliers who don’t supply part p5 but who do supply part p4.
+sqlplus>select sname
+  2  from s
+  3  where s# in
+  4  (select s# from sp where p# = 'p4'
+  5  minus
+  6  select s# from sp where p# = 'p5');
+SNAME
+-----
+clark
+
+1 row selected.
+
+sqlplus>
+sqlplus>--4.	List supplier names of suppliers who supply the second highest quantity (for a single part).
+sqlplus>-- testing
+sqlplus>
+sqlplus>select	sname from s natral join sp
+  2  	     where qty > (select max (qty from sp where qty !=(select max (qty)from sp)));
+	where qty > (select max (qty from sp where qty !=(select max (qty)from sp)))
+	*
+ERROR at line 2:
+ORA-00905: missing keyword
+
+
+sqlplus>
+sqlplus>--5.	List supplier names of suppliers who do supply at least 2 distinct parts but do not supply part p3.
+sqlplus>
+sqlplus>select sname
+  2  	     from s
+  3  	     where s# in(select s#
+  4  		     from (select distinct s#, count(s#)
+  5  			     over (partition by s#) as cnt
+  6  			     from (select s#
+  7  				     from sp
+  8  				     where p# != 'p3'
+  9  			     )
+ 10  		     )
+ 11  	     where cnt > 1);
+SNAME
+-----
+jones
+smith
+clark
+
+3 rows selected.
+
+sqlplus>
+sqlplus>--6.	For suppliers that supply at least 3 parts, list the supplier name and the top 3 (by qty) parts name,
+sqlplus>--in order of highest to lowest quantity (so each row will have the name of a supplier and three parts).
+sqlplus>
+sqlplus>with x as (select sname, pname, rank() over (partition by s# order by qty desc) rank
+  2  from s
+  3  join sp using (s#)
+  4  join p using (p#)
+  5  order by s#, qty desc)
+  6  select j.sname, a.pname,b.pname,c.pname
+  7  from (select sname from s natural join sp group by sname having count (*)>=3) j
+  8  join x a on a. sname = j.sname and x.rank = 1
+  9  join x b on b. sname = j.sname and x.rank = 2
+ 10  join x c on c. sname = j.sname and x.rank = 3
+ 11  ;
+join x a on a. sname = j.sname and x.rank = 1
+                                   *
+ERROR at line 8:
+ORA-00904: "X"."RANK": invalid identifier
+
+
+sqlplus>
+sqlplus>--7.	List supplier names with minimum quantity supplied if that supplier supplies at least one part whose
+sqlplus>--qty exceeds the maximum quantity of part p2.
+sqlplus>
+sqlplus>select name ,min(qty)
+  2  	     from s
+  3  	     join sp using (s#)
+  4  	     where s# in (select s#
+  5  		     from s
+  6  		     where qty > (select max(qty)
+  7  			     from sp
+  8  			     where p#='p2'
+  9  		     )
+ 10  	     )
+ 11  group by sname;
+select name ,min(qty)
+       *
+ERROR at line 1:
+ORA-00904: "NAME": invalid identifier
+
+
+sqlplus>
+sqlplus>--8. List the names of all suppliers, the names of parts they supply, the quantity supplied, the max quantity
+sqlplus>--that the supplier supplies of any part and the maximum  quantity of that part supplied by any supplier.
+sqlplus>
+sqlplus>select sname, pname, qty, max(qty)
+  2  	     over(partition by s#) part_over_s#, max(qty)
+  3  	     over(partition by p#) part_over_p#
+  4  	     from s
+  5  	     join sp using(s#)
+  6  	     join p using(p#);
+SNAME PNAME             QTY PART_OVER_S# PART_OVER_P#
+----- ---------- ---------- ------------ ------------
+smith router            150          240          150
+smith wrench            240          240          240
+smith stapler           120          240          250
+smith ladder            210          240          210
+smith pliers            200          240          200
+smith hammer            100          240          150
+jones wrench            120          120          240
+jones stapler           100          120          250
+jones pliers                         120          200
+adams hammer            150          150          150
+clark router            100          250          150
+clark pliers            120          250          200
+SNAME PNAME             QTY PART_OVER_S# PART_OVER_P#
+----- ---------- ---------- ------------ ------------
+clark stapler           250          250          250
+
+13 rows selected.
+
+sqlplus>
+sqlplus>--9. List the names of all supervisors of the employee Adams and the supervisors’ level above Adams.	Do not
+sqlplus>-- list any analyst if one should be a supervisor of Adams.
+sqlplus>
+sqlplus>select ename, level - 1 'level'
+  2  	     from emp
+  3  	     where ename != 'ADAMS' and job != 'ANALYST'
+  4  	     start  with  ename + ' ADAMS'
+  5  	     connect by prior mgr = empno;
+select ename, level - 1 'level'
+                        *
+ERROR at line 1:
+ORA-00923: FROM keyword not found where expected
+
+
+sqlplus>
+sqlplus>
+sqlplus>--10. List the company management hierarchy with employee name, supervisor name, employee’s level below the
+sqlplus>--president; do not print any employee who is a clerk. Indent each subsequent employee 3 spaces as the list
+sqlplus>--moves down the company hierarchy.
+sqlplus>select lpad (' ',3*(level-1))||ename as name, (select ename from emp where empno = x.mgr) as "manager", level -1 as "level"
+  2  	     from emp x
+  3  	     where job != 'CLERK'
+  4  	     start with mgr is null
+  5  	     connect by prior empno = mgr;
+NAME                 manager         level
+-------------------- ---------- ----------
+KING                                     0
+   JONES             KING                1
+      SCOTT          JONES               2
+      FORD           JONES               2
+   BLAKE             KING                1
+      ALLEN          BLAKE               2
+      WARD           BLAKE               2
+      MARTIN         BLAKE               2
+      TURNER         BLAKE               2
+   CLARK             KING                1
+
+10 rows selected.
+
+sqlplus>	col name format a20
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>
+sqlplus>spool off

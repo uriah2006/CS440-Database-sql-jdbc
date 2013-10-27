@@ -1,0 +1,167 @@
+sqlplus>@HW3in.sql
+sqlplus>/*
+sqlplus>	uriah sypolt
+sqlplus>	CS 440
+sqlplus>	Assignment 2
+sqlplus>	January 28, 2013
+sqlplus>*/
+sqlplus>--1. Modify the record of employee Scott so that Scott now has the same manager as the employee Turner.  Rollback your modifications.
+sqlplus>update emp
+  2  	     SET mgr=(select mgr from emp where ename='TURNER')
+  3  	     WHERE ENAME='SCOTT';
+
+1 row updated.
+
+sqlplus>ROLLBACK;
+
+Rollback complete.
+
+sqlplus>
+sqlplus>-- 2. Create a new department called “PR” and move all employees from Research into this new department.  Rollback your modifications.
+sqlplus>INSERT INTO DEPT VALUES (50,'PR','SILENTHILL');
+
+1 row created.
+
+sqlplus>update EMP
+  2  	     SET DEPTNO=(select deptno from dept where upper (dname) ='PR' )
+  3  	     WHERE DEPTNO=(select deptno from dept where upper (dname) ='Research' );
+
+0 rows updated.
+
+sqlplus>ROLLBACK;
+
+Rollback complete.
+
+sqlplus>
+sqlplus>--3. List all employees who do not have the same manager as Martin.
+sqlplus>SELECT ename
+  2  	     FROM EMP
+  3  	     WHERE MGR != (select mgr from emp where ename='MARTIN');
+ENAME
+----------
+SMITH
+JONES
+BLAKE
+CLARK
+SCOTT
+ADAMS
+FORD
+MILLER
+
+8 rows selected.
+
+sqlplus>
+sqlplus>--4. List all supplier names, and, if the supplier supplies parts,  list names of all parts supplied by that supplier;	display each supplier name at most one time.
+sqlplus>
+sqlplus>BREAK ON SNAME;
+sqlplus>SELECT SNAME,pname
+  2  	     FROM S
+  3  	     left JOIN SP USING(S#)
+  4  	     left JOIN P USING(p#)
+  5  	     order by sname,pname;
+SNAME PNAME
+----- ----------
+adams hammer
+clark pliers
+      router
+      stapler
+henry
+jones pliers
+      stapler
+      wrench
+smith hammer
+      ladder
+      pliers
+      router
+SNAME PNAME
+----- ----------
+smith stapler
+      wrench
+
+14 rows selected.
+
+sqlplus>
+sqlplus>--5. List part names of all parts (except staplers)  supplied by suppliers who supply staplers.
+sqlplus>
+sqlplus>SELECT distinct PNAME
+  2  	     FROM P
+  3  	     JOIN SP USING (P#)
+  4  	     WHERE s# = any (select s#
+  5  					     from sp
+  6  					     join p using (p#)
+  7  					     where pname='stapler'
+  8  					     and panme != 'stapler')
+  9  
+sqlplus>--6. List part names of all parts that are not currently supplied in Bonn.
+sqlplus>--
+sqlplus>SELECT PNAME
+  2  	     FROM P
+  3  	     WHERE city != 'Bonn';
+PNAME
+----------
+hammer
+pliers
+router
+wrench
+ladder
+
+5 rows selected.
+
+sqlplus>
+sqlplus>--7. List supplier names of suppliers who supply parts made in three or more different cities.
+sqlplus>
+sqlplus>select pname
+  2  	     from p
+  3  	     minus (select pname
+  4  			     from p
+  5  			     join sp using (p#)
+  6  			     join s using (s#)
+  7  			     where upper (s.city)= 'BONN';)
+  8  
+sqlplus>
+sqlplus>--8. List each department and, if it has employees, the average salary of the department.
+sqlplus>select dname, avg (sal)
+  2  	     from dept
+  3  	     left join emp using (deptno)
+  4  	     group by dname;
+DNAME            AVG(SAL)
+-------------- ----------
+RESEARCH             2175
+SALES          1566.66667
+OPERATIONS
+ACCOUNTING     2916.66667
+
+4 rows selected.
+
+sqlplus>
+sqlplus>--9. List department names of departments having no employees.
+sqlplus> select dname
+  2  	     from dept
+  3  	     left join emp using (deptno)
+  4  	     minus (select dname
+  5  			     from dept
+  6  			     right join emp using (deptno));
+DNAME
+--------------
+OPERATIONS
+
+1 row selected.
+
+sqlplus>
+sqlplus>--10. List department names, the highest paid employee in the department, and his salar
+sqlplus>select dname, ename, sal
+  2  	     from dept
+  3  	     join emp on emp.deptno = dept.deptno
+  4  	     where sal in (select max (sal)
+  5  					     from emp
+  6  					     where deptno= dept.deptno);
+DNAME          ENAME             SAL
+-------------- ---------- ----------
+ACCOUNTING     KING             5000
+RESEARCH       SCOTT            3000
+RESEARCH       FORD             3000
+SALES          BLAKE            2850
+
+4 rows selected.
+
+sqlplus>spool off

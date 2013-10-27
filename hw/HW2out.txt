@@ -1,0 +1,172 @@
+sqlplus>@HW2.sql
+sqlplus>/*
+sqlplus>	uriah sypolt
+sqlplus>	CS 440
+sqlplus>	Assignment 2
+sqlplus>	January 28, 2013
+sqlplus>*/
+sqlplus>
+sqlplus>--1a
+sqlplus>alter table dept add constraint DEPTNO_PRIME primary key (deptno)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--b
+sqlplus>alter table dept add constraint dnameNotNull not null deferrable initially immediate;
+alter table dept add constraint dnameNotNull not null deferrable initially immediate
+
+Table altered.
+
+sqlplus>alter table dept add constraint dnameUniqueName unique (dname)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--2a
+sqlplus>alter table emp add constraint empnoPrime primary key (empno)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--b
+sqlplus>alter table emp add constraint enameNotNull not null deferrable initially immediate;
+alter table emp add constraint enameNotNull not null deferrable initially immediate
+
+Table altered.
+
+sqlplus>alter table emp add constraint enameUniqueName unique (ename)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--c
+sqlplus>ALTER TABLE emp modify mgr constraint mgrToEmpno REFERENCES emp(empno)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--d
+sqlplus>ALTER TABLE dept modify deptno constraint deptnoToDeptno REFERENCES dept(deptno)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--e
+sqlplus>alter table emp modify sal constraint salInt check (sal between 500 and 10000 )deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--3a
+sqlplus>alter table s add constraint sPrime  primary key (s#)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--b
+sqlplus>alter table s add constraint snameNotNull not null deferrable initially immediate;
+alter table s add constraint snameNotNull not null deferrable initially immediate;
+
+Table altered.
+
+sqlplus>alter table s add constraint snameUniqueName unique (sname)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--4a
+sqlplus>alter table p add constraint pPrime primary key (p#)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--b
+sqlplus>alter table p add constraint pnameNotNull check ( pname is not null)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>alter table p add constraint pnameUniqueName unique (pname)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--5a
+sqlplus>alter table sp add constraint sAndpPrime primary key (s#,p#)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--b
+sqlplus>alter table sp add constraint qtyNotNeg check( qty is null or qty >= 0 )deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--c
+sqlplus>
+sqlplus>ALTER TABLE sp modify s# constraint s#Tos# REFERENCES s(s#)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>ALTER TABLE sp modify p# constraint p#noToP# REFERENCES p(p#)deferrable initially immediate;
+
+Table altered.
+
+sqlplus>
+sqlplus>--6
+sqlplus>CREATE INDEX deptEmp ON emp(deptno);
+
+Index created.
+
+sqlplus>
+sqlplus>--7
+sqlplus>update emp set hiredate = add_months('13-jul-13', -12)where hiredate= '13-jul-13';
+
+0 rows updated.
+
+sqlplus>
+sqlplus>--8
+sqlplus>SELECT table_name, index_name FROM user_indexes ;
+TABLE_NAME                     INDEX_NAME
+------------------------------ ------------------------------
+SP                             SANDPPRIME
+S                              SPRIME
+S                              SNAMEUNIQUENAME
+P                              PPRIME
+P                              PNAMEUNIQUENAME
+EMP                            EMPNOPRIME
+EMP                            ENAMEUNIQUENAME
+EMP                            DEPTEMP
+DEPT                           DNAMEUNIQUENAME
+DEPT                           DEPTNO_PRIME
+
+10 rows selected.
+
+sqlplus>
+sqlplus>--9
+sqlplus>SELECT table_name, constraint_name FROM user_constraints;
+TABLE_NAME                     CONSTRAINT_NAME
+------------------------------ ------------------------------
+EMP                            SALINT
+P                              PNAMENOTNULL
+SP                             QTYNOTNEG
+SP                             S#TOS#
+SP                             P#NOTOP#
+EMP                            MGRTOEMPNO
+DEPT                           DEPTNOTODEPTNO
+DEPT                           DEPTNO_PRIME
+DEPT                           DNAMEUNIQUENAME
+EMP                            EMPNOPRIME
+EMP                            ENAMEUNIQUENAME
+S                              SPRIME
+TABLE_NAME                     CONSTRAINT_NAME
+------------------------------ ------------------------------
+S                              SNAMEUNIQUENAME
+P                              PPRIME
+P                              PNAMEUNIQUENAME
+SP                             SANDPPRIME
+
+16 rows selected.
+
+sqlplus>spool off

@@ -1,0 +1,232 @@
+sqlplus>@HW4in.sql
+sqlplus>
+sqlplus>/*
+sqlplus>uriah sypolt
+sqlplus>cs 440
+sqlplus>assiment 4
+sqlplus>*/
+sqlplus>
+sqlplus>--1. Find the names of all companies who are collaborators with a company that has a ceo named
+sqlplus>--Gabriel.
+sqlplus>
+sqlplus>Select name
+  2  	     from collaborators
+  3  	     inner join company on company.id = collaborators.c1
+  4  	     where collaborators.c2 in (select id -- finding company id where there ceo is gabriel
+  5  		     from company
+  6  		     where ceo='Gabriel'
+  7  	     )
+  8  ;
+NAME
+----------
+Acorn
+Peanut
+SSR
+Tulip
+Horn
+
+5 rows selected.
+
+sqlplus>
+sqlplus>--2. For each company that supplies to a company two or more levels of complexity lower than their
+sqlplus>--own, list the name and fields of both the supplier and the purchaser.
+sqlplus>
+sqlplus>select	a.name , a.field , b.name , b.field
+  2  	     from company a
+  3  	     join COMPLEXITY ad   on a.field   = ad.field
+  4  	     join SUPPLIERS supp  on a.id      = supp.SUPPLIER
+  5  	     join company b	  on b.id      = supp.PURCHASER
+  6  	     join COMPLEXITY bx   on b.field   = bx.field
+  7  	     where ad.rank-2 >= bx.rank
+  8  ;
+NAME       FIELD                NAME       FIELD
+---------- -------------------- ---------- --------------------
+Mint       Database             Juniper    Web
+
+1 row selected.
+
+sqlplus>
+sqlplus>--3. For each pair of companies that collaborate, list the names of both companies and both of their
+sqlplus>--respective fields. List each pair only once with the pair alphabetical by name. Also the list
+sqlplus>--should be alphabetized by the first name and then by the second.
+sqlplus>
+sqlplus>select com1.name, com1.field, com2.name, com2.field
+  2  	     from company com1
+  3  	     join collaborators col on com1.id = col.c1
+  4  	     join company com2 on com2.id = col.c2
+  5  	     where com1.name < com2.name		      -- making sure the smaller number is on the left thus del the duplcates
+  6  	     order by com1.name, com2.name
+  7  ;
+NAME       FIELD                NAME       FIELD
+---------- -------------------- ---------- --------------------
+Acorn      iPhone               Hemlock    iPhone
+Acorn      iPhone               Walnut     iPhone
+Blowtorch  Web                  FrenchFry  Web
+Blowtorch  Web                  Juniper    Web
+Blowtorch  Web                  SSR        Web
+FrenchFry  Web                  Juniper    Web
+Gross      Desktop              Horn       Desktop
+Gross      Desktop              Tulip      Desktop
+Hemlock    iPhone               Peanut     iPhone
+Hemlock    iPhone               SSR        Web
+Horn       Desktop              Rocky      Database
+Horn       Desktop              Tulip      Desktop
+NAME       FIELD                NAME       FIELD
+---------- -------------------- ---------- --------------------
+Marathon   Desktop              Rocky      Database
+Marathon   Desktop              SSR        Web
+Mint       Database             Tempty     Database
+Peanut     iPhone               Tulip      Desktop
+Rocky      Database             Sycamore   Database
+SSR        Web                  Sycamore   Database
+Sycamore   Database             Tempty     Database
+Tulip      Desktop              Walnut     iPhone
+
+20 rows selected.
+
+sqlplus>
+sqlplus>
+sqlplus>--4. Find all companies who do not appear in the Suppliers table (as a company who supplies or
+sqlplus>--purchases) and return their names and fields. Sort by field, then by name within each field.
+sqlplus>
+sqlplus>select field , name
+  2  	     from company
+  3  	     where id not in (select SUPPLIER from SUPPLIERS)
+  4  	     and id not in (select PURCHASER from SUPPLIERS)
+  5  	     order by field , name
+  6  ;
+FIELD                NAME
+-------------------- ----------
+Database             Tempty
+iPhone               Acorn
+iPhone               Walnut
+
+3 rows selected.
+
+sqlplus>
+sqlplus>
+sqlplus>--5. For every situation where company A supplies company B, but we have no information about
+sqlplus>--whom B supplies (that is, B does not appear as an Supplier in the Supplies table), return A and
+sqlplus>--B's names and fields.
+sqlplus>
+sqlplus>select compa.name, compb.name, compa.field, compb.field
+  2  	     from company compa
+  3  	     join suppliers sup on compa.id = sup.supplier
+  4  	     join company compb on compb.id = sup.purchaser
+  5  	     where compb.id not in (select supplier	    -- finding id's in suppliers that are not the same as compb
+  6  		     from suppliers
+  7  	     )
+  8  ;
+NAME       NAME       FIELD                FIELD
+---------- ---------- -------------------- --------------------
+Marathon   Sycamore   Desktop              Database
+FrenchFry  Blowtorch  Web                  Web
+Tulip      Blowtorch  Desktop              Web
+Mint       Juniper    Database             Web
+
+4 rows selected.
+
+sqlplus>
+sqlplus>--6. Find names and fields of companies who only collaborate with companies in the same field.
+sqlplus>--Return the result sorted by field, then by name within each field.
+sqlplus>
+sqlplus>select name, field
+  2  	     from company
+  3  	     minus(select a.name, a.field
+  4  		     from company a
+  5  		     join COLLABORATORS ac on a.id = ac.c1
+  6  		     join company b on b.id = ac.c2
+  7  		     where a.field != b.field
+  8  	     )
+  9  ;
+NAME       FIELD
+---------- --------------------
+Acorn      iPhone
+Blowtorch  Web
+FrenchFry  Web
+Gross      Desktop
+Juniper    Web
+Mint       Database
+Tempty     Database
+
+7 rows selected.
+
+sqlplus>
+sqlplus>--7. For each company A who supplies a company B where the two do not collaborate, find if they
+sqlplus>--have a collaborator C in common (who can introduce them!). For all such trios, return the name
+sqlplus>--of A, B, and C.
+sqlplus>
+sqlplus>with temp as (select *
+  2  	     from company
+  3  	     join collaborators on id = c1)
+  4  select a.name, b.name, comp.name
+  5  	     from suppliers
+  6  	     join temp a on supplier = a.id
+  7  	     join temp b on purchaser = b.id
+  8  	     join company comp on comp.id = a.c2 and comp.id = b.c2
+  9  	     where (a.id, b.id) not in (select * from collaborators)
+ 10  ;
+NAME       NAME       NAME
+---------- ---------- ----------
+Marathon   Sycamore   SSR
+Marathon   Sycamore   Rocky
+SSR        Peanut     Hemlock
+
+3 rows selected.
+
+sqlplus>
+sqlplus>
+sqlplus>--8. Find the difference between the number of companies in the holler and the number of different
+sqlplus>--ceo names.
+sqlplus>
+sqlplus>select count(id) - count(distinct ceo)		  --counting all the compaines and subtrating unique ceo's
+  2  	     from company
+  3  ;
+COUNT(ID)-COUNT(DISTINCTCEO)--COUNTINGALLTHECOMPAINESANDSUBTRATINGUNIQUECEO'S
+-----------------------------------------------------------------------------
+                                                                            2
+
+1 row selected.
+
+sqlplus>
+sqlplus>--9. Find the name and field of all companies who are buy from more than one supplier.
+sqlplus>
+sqlplus>select name, field
+  2  	     from company
+  3  	     where company.id in(select purchaser
+  4  		     from suppliers
+  5  		     group by purchaser
+  6  		     having (count(purchaser) > 1)
+  7  	     )
+  8  ;
+NAME       FIELD
+---------- --------------------
+Peanut     iPhone
+Blowtorch  Web
+
+2 rows selected.
+
+sqlplus>
+sqlplus>--10. Find the name and field of the company(s) with the most collaborators.
+sqlplus>
+sqlplus>select name, field
+  2  	     from company
+  3  	     where id in(select c1
+  4  		     from (select c1, count(c1)
+  5  			     from collaborators
+  6  			     group by c1
+  7  			     having count (c1) in (select max (count( c1))
+  8  				     from collaborators
+  9  				     group by c1
+ 10  			     )
+ 11  		     )
+ 12  	     )
+ 13  ;
+NAME       FIELD
+---------- --------------------
+SSR        Web
+Tulip      Desktop
+
+2 rows selected.
+
+sqlplus>spool off

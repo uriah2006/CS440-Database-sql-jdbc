@@ -1,0 +1,247 @@
+	COLLABORATORS
+
+C1	         C2
+---------- ----------
+      1510	1381
+      1510	1689
+      1689	1709
+      1381	1247
+      1709	1247
+      1689	1782
+      1782	1468
+      1782	1316
+      1782	1304
+      1468	1101
+      1468	1641
+      1101	1641
+
+C1	           C2
+---------- ----------
+      1247	1911
+      1247	1501
+      1911	1501
+      1501	1934
+      1316	1934
+      1934	1304
+      1304	1661
+      1661	1025
+      1381	1510
+      1689	1510
+      1709	1689
+      1247	1381
+
+C1	        C2
+---------- ----------
+      1247	1709
+      1782	1689
+      1468	1782
+      1316	1782
+      1304	1782
+      1101	1468
+      1641	1468
+      1641	1101
+      1911	1247
+      1501	1247
+      1501	1911
+      1934	1501
+
+C1	         C2
+---------- ----------
+      1934	1316
+      1304	1934
+      1661	1304
+      1025	1661
+
+40 rows selected.
+
+
+
+COMPANY	
+
+
+       ID    NAME      	CEO	                        FIELD
+---------- ---------- ------------------------------ --------------------
+      1510 Acorn      Jordan	    iPhone
+      1689 Hemlock    Gabriel	    iPhone
+      1381 Walnut    Tiffany	    iPhone
+      1709 Peanut    Cassandra 	    iPhone
+      1101 Juniper    Haley	         Web
+      1782 SSR	      Andrew	     Web
+      1468 Blowtorch  Kris	         Web
+      1641 FrenchFry  Brittany	     Web
+      1247 Tulip      Alexis	    Desktop
+      1316 Marathon   Austin	    Desktop
+      1911 Gross      Gabriel	    Desktop
+      1501 Horn       Jessica	    Desktop
+
+      ID      NAME               CEO	               FIELD
+---------- ---------- ------------------------------ --------------------
+      1304 Sycamore  	Jordan	    Database
+      1025 Mint      	John	    Database
+      1934 Rocky    	Kyle	    Database
+      1661 Tempty     	Logan	    Database
+
+16 rows selected.
+
+
+
+COMPLEXITY	
+
+FIELD        	      RANK
+-------------------- ----------
+iPhone	              1
+Web	                  2
+Desktop               3
+Database	          4
+
+4 rows selected.
+
+
+
+SUPPLIERS
+
+    SUPPLIER    PURCHASER
+    ----------	----------
+        1689	1709
+        1709	1689
+        1782	1709
+        1911	1247
+        1247	1468
+        1641	1468
+        1316	1304
+        1501	1934
+        1934	1501
+        1025	1101
+
+10 rows selected.
+
+
+p
+
+P# PNAME      COLOR     WEIGHT CITY
+-- ---------- ----- ---------- ----------
+p1 hammer     red          2.6 Paris
+p2 pliers     green        3.1 London
+p3 router     blue         5.6 Paris
+p4 stapler    red          3.7 Bonn
+p5 wrench     green        2.6 Rome
+p6 ladder     blue        10.5 Paris
+
+6 rows selected.
+s
+
+S# SNAME     STATUS CITY
+-- ----- ---------- ----------
+s1 smith         10 Paris
+s2 jones         20 Bonn
+s3 adams         30 London
+s4 clark         40 Rome
+s5 henry         50 Dublin
+
+sp
+
+S# P#        QTY
+-- -- ----------
+s1 p1        100
+s1 p2        200
+s1 p3        150
+s1 p4        120
+s1 p5        240
+s1 p6        210
+s2 p2
+s2 p4        100
+s2 p5        120
+s3 p1        150
+s4 p2        120
+
+S# P#        QTY
+-- -- ----------
+s4 p3        100
+s4 p4        250
+
+13 rows selected.
+
+
+
+     EMPNO ENAME      JOB              MGR HIREDATE                    SAL       COMM     DEPTNO
+---------- ---------- --------- ---------- -------------------- ---------- ---------- ----------
+      7369 SMITH      CLERK           7902 17-DEC-2008 00:00:00        800                    20
+      7499 ALLEN      SALESMAN        7698 20-FEB-2009 00:00:00       1600        300         30
+      7521 WARD       SALESMAN        7698 22-FEB-2009 00:00:00       1250        500         30
+      7566 JONES      MANAGER         7839 02-APR-2009 00:00:00       2975                    20
+      7654 MARTIN     SALESMAN        7698 28-SEP-2009 00:00:00       1250       1400         30
+      7698 BLAKE      MANAGER         7839 01-MAY-2009 00:00:00       2850                    30
+      7782 CLARK      MANAGER         7839 09-JUN-2009 00:00:00       2450                    10
+      7788 SCOTT      ANALYST         7566 13-JUL-2013 00:00:00       3000                    20
+      7839 KING       PRESIDENT            17-NOV-2009 00:00:00       5000                    10
+      7844 TURNER     SALESMAN        7698 08-SEP-2009 00:00:00       1500          0         30
+      7876 ADAMS      CLERK           7788 13-JUL-2013 00:00:00       1100                    20
+      7900 JAMES      CLERK           7698 03-DEC-2009 00:00:00        950                    30
+     EMPNO ENAME      JOB              MGR HIREDATE                    SAL       COMM     DEPTNO
+---------- ---------- --------- ---------- -------------------- ---------- ---------- ----------
+      7902 FORD       ANALYST         7566 03-DEC-2009 00:00:00       3000                    20
+      7934 MILLER     CLERK           7782 23-JAN-2010 00:00:00       1300                    10
+
+14 rows selected.
+
+
+
+
+
+Likes
+
+      CRN1       CRN2
+---------- ----------
+      1025       1101
+      1247       1468
+      1316       1304
+      1501       1934
+      1641       1468
+      1689       1709
+      1709       1689
+      1782       1709
+      1911       1247
+      1934       1501
+
+
+
+
+wvu;
+       CRN NAME                           GR
+---------- ------------------------------ --
+      1510 Jordan                         FR
+      1689 Gabriel                        FR
+      1381 Tiffany                        FR
+      1709 Cassandra                      FR
+      1101 Haley                          SO
+      1782 Andrew                         SO
+      1468 Kris                           SO
+      1641 Brittany                       SO
+      1247 Alexis                         JR
+      1316 Austin                         JR
+      1911 Gabriel                        JR
+      1501 Jessica                        JR
+       CRN NAME                           GR
+---------- ------------------------------ --
+      1304 Jordan                         SR
+      1025 John                           SR
+      1934 Kyle                           SR
+      1661 Logan                          SR
+
+16 rows selected.
+
+
+
+year;
+AB FULLNAME                         POSITION
+-- ------------------------------ ----------
+FR Freshman                                1
+SO Sophomore                               2
+JR Junior                                  3
+SR Senior                                  4
+GR Graduate                                5
+
+5 rows selected.
+
+
+

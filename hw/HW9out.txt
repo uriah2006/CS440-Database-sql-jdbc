@@ -1,0 +1,35 @@
+> /*
+uriah sypolt
+cs440
+hw9 
+*/
+> echo on
+
+Error starting at line 7 in command:
+echo on
+Error report:
+Unknown Command
+> -- Whatsamatta University has heavily modified their schema, and their database 
+> -- is open for yourinspection under user wu.  Tables in the schema include 
+> -- DEPARTMENTS, CLASSES,ANDSTUDENTS.
+> -- Using the tables in the wu schema, create a script to create the following 
+> -- structure in your database:
+> -- 1. Create an object, classes_ty that contains attributes CRN varchar2(5), 
+> -- Department varchar2(8), and CourseTitle varchar2(25).
+> --drop type classes_ty;
+> create or replace type classes_ty as object
+ (
+  CRN  varchar2(5),
+  department varchar2(8),
+  courseTitle varchar2(25)
+ );
+
+Error starting at line 17 in command:
+create or replace type classes_ty as object
+ (
+  CRN  varchar2(5),
+  department varchar2(8),
+  courseTitle varchar2(25)
+ );
+Error report:
+IO Error: Connection reset by peer: socket write error

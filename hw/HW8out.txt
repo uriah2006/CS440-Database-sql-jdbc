@@ -1,0 +1,184 @@
+sqlplus>set echo on
+sqlplus>set serveroutput on format wrapped size 1000000
+sqlplus>set line 140
+sqlplus>
+sqlplus> /*
+sqlplus> uriah sypolt
+sqlplus> cs440
+sqlplus> assignment 8
+sqlplus> 4/5/2013
+sqlplus> */
+sqlplus>--1. Create a PLSQL function called Likers that, receiving a CRN as a parameter, will return a varying array of the student names of all
+sqlplus>--students that like the student represented by the parameter.	Note that you will be responsible for creating an appropriate varying
+sqlplus>--array for this purpose.  If no one likes the student, the function should return null.
+sqlplus>
+sqlplus>create or replace type return_array as varying array(100) of varchar2(30);
+  2  /
+
+Type created.
+
+sqlplus>
+sqlplus>create or replace function Likers(p_crn Likes.CRN2%type)
+  2  return return_array as
+  3  
+  4  v_likes return_array := return_array();
+  5  
+  6  begin
+  7  
+  8  	     for rec in (select name from wvu where crn in (select crn1 from likes where crn2 = p_crn)) loop
+  9  		     v_likes.extend;
+ 10  		     v_likes(v_likes.count) := rec.name;
+ 11  	     end loop;
+ 12  	     if (v_likes.count = 0) then
+ 13  		     return null;
+ 14  	     else
+ 15  		     return v_likes;
+ 16  	     end if;
+ 17  end likers;
+ 18  /
+
+Function created.
+
+sqlplus>show errors
+No errors.
+sqlplus>
+sqlplus>
+sqlplus>--2. Create a PLSQL procedure called Hermitify received a CRN as a parameter and removes all Friend/Likes references to that individual.
+sqlplus>create or replace procedure Hermitify (p_crn friend.crn1%type)
+  2  as
+  3  begin
+  4  delete from Friend where crn1 = p_crn or crn2 = p_crn;
+  5  delete from Likes where crn1 = p_crn or crn2 = p_crn;
+  6  end;
+  7  /
+
+Procedure created.
+
+sqlplus>show errors
+No errors.
+sqlplus>
+sqlplus>
+sqlplus>--3. Create a trigger so that new students like all students in their grade.
+sqlplus>create or replace trigger like_all
+  2  for insert on wvu
+  3  compound trigger
+  4  
+  5   v_likes return_array := return_array();
+  6  
+  7  after each row is
+  8  begin
+  9  	     v_likes.extend;
+ 10  	     v_likes(v_likes.count) := :new.name;
+ 11  end after each row;
+ 12  
+ 13  after statement is
+ 14  v_crn number;
+ 15  begin
+ 16  for i in 1..v_likes.count loop
+ 17  	 select crn into v_crn from wvu where name = v_likes(i);
+ 18  	 for f_crn in (select crn from wvu where grade = (select grade from wvu where crn = v_crn)) loop
+ 19  	     insert into likes values (v_crn, f_crn.crn);
+ 20  	 end loop;
+ 21  end loop;
+ 22  end after statement;
+ 23  end like_all;
+ 24  /
+
+Trigger created.
+
+sqlplus>show errors
+No errors.
+sqlplus>
+sqlplus>
+sqlplus>--4. Create a trigger so that new students who either have a null grade or no grade specified are automatically listed as Freshmen.
+sqlplus>
+sqlplus>create or replace trigger no_grade
+  2  before update of grade
+  3  on wvu
+  4  for each row
+  5  
+  6  when(new.grade is null)
+  7  
+  8  begin
+  9  	     :new.grade := 'FR';
+ 10  end no_grade;
+ 11  /
+
+Trigger created.
+
+sqlplus>show errors
+No errors.
+sqlplus>
+sqlplus>--5. Create a trigger so that symmetry is maintained in the Friend table (so if A is a friend of B, B must also be a friend of A).
+sqlplus>
+sqlplus>create or replace trigger bal_friend
+  2  after update on friend
+  3  begin
+  4  	     insert into friend select crn1, crn2 from friend where (crn2, crn1) not in
+  5  	     (select crn1, crn2 from friend);
+  6  end bal_friend;
+  7  /
+
+Trigger created.
+
+sqlplus>show errors
+No errors.
+sqlplus>
+sqlplus>--6. Create a trigger so that if a student is advanced one year (say from Freshman to Sophomore) then so are all of his friends.
+sqlplus>create or replace trigger new_school_year
+  2  after update on wvu
+  3  begin
+  4  end new_school_year;
+  5  /
+
+Warning: Trigger created with compilation errors.
+
+sqlplus>show errors
+Errors for TRIGGER NEW_SCHOOL_YEAR:
+LINE/COL ERROR
+-------- -----------------------------------------------------------------
+2/1      PLS-00103: Encountered the symbol "END" when expecting one of the
+         following:
+         ( begin case declare exit for goto if loop mod null pragma
+         raise return select update while with <an identifier>
+         <a double-quoted delimited-identifier> <a bind variable> <<
+         continue close current delete fetch lock insert open rollback
+         savepoint set sql execute commit forall merge pipe purge
+
+sqlplus>
+sqlplus>--7. Create a trigger so that if a student is advanced to graduate student, the student is automatically deleted from the database.
+sqlplus>
+sqlplus>create or replace trigger get_out
+  2  after update of grade on wvu
+  3  
+  4  begin
+  5  for x in (select name from wvu where grade = 'GR') loop
+  6  	     Hermitify(x.name);
+  7  end loop;
+  8  delete from wvu where grade  = 'GR';
+  9  end get_out;
+ 10  /
+
+Trigger created.
+
+sqlplus>show errors
+No errors.
+sqlplus>
+sqlplus>--8. Write a trigger to enforce the following behavior: If A liked B but is updated to A liking C instead, and B and C were friends, make
+sqlplus>--B and C no longer friends.
+sqlplus>create or replace trigger triangle
+  2  after update on crn2 of likes
+  3  for each row
+  4  begin
+  5  end triangle;
+  6  /
+after update on crn2 of likes
+                     *
+ERROR at line 2:
+ORA-04079: invalid trigger specification
+
+
+sqlplus>show errors
+No errors.
+sqlplus>
+sqlplus>spool off
